@@ -7,89 +7,77 @@ st.set_page_config(
     layout="centered"
 )
 
-# --- ESTILOS PERSONALIZADOS (Dark Cozy Aesthetic) ---
+# --- ESTILOS PERSONALIZADOS (Inspirados en la imagen) ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;600&display=swap');
 
-    /* Fondo principal y fuentes */
     html, body, [class*="css"] {
         font-family: 'Quicksand', sans-serif;
-        background-color: #1E1E1E; /* Negro café oscuro */
-        color: #EAE2D6; /* Texto crema claro para contraste */
+        background-color: #1a0a2e; /* Fondo morado muy oscuro como el cielo de la portada */
     }
 
     .stApp {
-        background-color: #262220; /* Tono chocolate oscuro */
+        background-color: #1a0a2e;
     }
 
-    /* Títulos con un toque dorado/cálido */
-    h1, h2, h3 {
-        color: #D4AC0D !important; 
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-    }
-
-    /* Texto general */
-    .stMarkdown p {
-        color: #D5DBDB;
+    /* Títulos y texto */
+    h1, h2, h3, p, span, label {
+        color: #fce4ec !important; /* Rosa muy claro para lectura */
     }
 
     /* Estilo para los Expanders (Acordeones) */
     .streamlit-expanderHeader {
-        background-color: #383431 !important;
+        background-color: #3d1c52 !important; /* Morado medio */
         border-radius: 10px !important;
-        color: #FADBD8 !important; /* Acento rosado suave */
+        color: #ff80ab !important; /* Rosa vibrante */
     }
 
-    /* Contenedor del Cupón - Estilo Mágico */
+    /* Contenedor del Cupón */
     .coupon-container {
-        background-color: #2D3E33; /* Verde bosque oscuro */
-        border: 2px dashed #A9DFBF;
-        padding: 30px;
+        background-color: #2e1a47; /* Violeta profundo */
+        border: 2px dashed #ff4081; /* Borde rosa neón suave */
+        padding: 20px;
         border-radius: 15px;
         text-align: center;
         margin-top: 20px;
-        box-shadow: 0px 4px 15px rgba(0,0,0,0.4);
+        box-shadow: 0px 0px 15px rgba(255, 64, 129, 0.3);
     }
 
     .coupon-code {
-        font-size: 28px;
+        font-size: 24px;
         font-weight: bold;
-        color: #AED6F1; /* Azul pastel brillante */
-        letter-spacing: 4px;
-        margin: 15px 0;
+        color: #ba68c8; /* Púrpura brillante */
+        letter-spacing: 2px;
     }
 
-    /* Botones con acento cálido */
+    /* Botones */
     .stButton>button {
-        background-color: #E67E22; /* Naranja cálido/quemado */
+        background: linear-gradient(45deg, #7b1fa2, #ff4081); /* Degradado de morado a rosa */
         color: white;
         border: none;
-        border-radius: 25px;
-        padding: 10px 30px;
-        font-weight: 600;
+        border-radius: 20px;
+        padding: 10px 25px;
         transition: all 0.3s ease;
+        font-weight: 600;
     }
 
     .stButton>button:hover {
-        background-color: #D35400;
-        transform: translateY(-2px);
-        box-shadow: 0px 5px 10px rgba(0,0,0,0.3);
+        transform: scale(1.05);
+        box-shadow: 0px 0px 12px rgba(255, 64, 129, 0.6);
     }
     
-    /* Inputs y áreas de texto */
+    /* Inputs */
     input {
-        background-color: #3D3835 !important;
+        background-color: #2e1a47 !important;
         color: white !important;
-        border: 1px solid #5D6D7E !important;
-        border-radius: 12px !important;
+        border: 1px solid #7b1fa2 !important;
+        border-radius: 10px !important;
     }
 
-    /* Ajuste para móvil */
-    @media (max-width: 640px) {
-        .coupon-code {
-            font-size: 20px;
-        }
+    /* Barra de progreso */
+    .stProgress > div > div > div > div {
+        background-color: #ff4081;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -107,20 +95,18 @@ if 'progreso' not in st.session_state:
     st.session_state.progreso = {genero: False for genero in RESPUESTAS_CORRECTAS}
 
 # --- INTERFAZ ---
-st.title("🍂 ¿Cuándo fue la última vez que leíste?")
-st.write("Introduce las respuestas de los acertijos ocultos en los libros para desbloquear el secreto de la librería.")
+st.title("¿Cuándo fue la última vez que leíste?")
+st.write("Introduce las respuestas que encontraste en los libros para desbloquear un secreto...")
 
-# Iteración de géneros
 for genero, respuesta_real in RESPUESTAS_CORRECTAS.items():
-    check = "✅" if st.session_state.progreso[genero] else "📖"
-    with st.expander(f"{check} Género: {genero}"):
-        user_input = st.text_input(f"Escribe la respuesta de {genero}:", key=f"input_{genero}").lower().strip()
+    with st.expander(f"Género: {genero} {'✅' if st.session_state.progreso[genero] else '🔍'}"):
+        user_input = st.text_input(f"Respuesta para {genero}:", key=f"input_{genero}").lower().strip()
         
         if user_input == respuesta_real:
             st.session_state.progreso[genero] = True
-            st.success(f"¡Correcto! El escudo de {genero} ha sido activado.")
+            st.success(f"¡Correcto! Has encontrado el escudo de {genero}.")
         elif user_input != "":
-            st.warning("Esa palabra no abre este secreto... intenta de nuevo.")
+            st.error("Esa no es la respuesta, ¡sigue buscando en el libro!")
 
 # --- SECCIÓN DE RECOMPENSA ---
 todos_completados = all(st.session_state.progreso.values())
@@ -130,31 +116,27 @@ if todos_completados:
     st.balloons()
     st.markdown("""
         <div class="coupon-container">
-            <h2 style="color: #FADBD8 !important;">¡Felicitaciones! ⊹ ࣪ ˖</h2>
-            <p style="color: #EAE2D6;">Has demostrado ser un lector excepcional. Has reunido todos los escudos.</p>
-            <p style="color: #EAE2D6; font-style: italic;">Tu recompensa secreta es:</p>
+            <h3>¡Felicitaciones! ⊹ ࣪ ˖</h3>
+            <p>Lograste encontrar todos los escudos y responder el acertijo.</p>
+            <p>Desbloqueaste el secreto:</p>
             <div class="coupon-code">LECTURA15OFF</div>
-            <p style="font-size: 0.8em; color: #A9DFBF;">Muestra este código en caja para un 15% de descuento en la selección del proyecto.</p>
+            <p><small>Válido para los libros incluidos en la promoción especial.</small></p>
         </div>
     """, unsafe_allow_html=True)
 
-    # --- SECCIÓN DE IA RECOMENDADORA ---
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.subheader("✨ Obten tu próxima recomendación lectora aquí!")
-    st.write("Cuéntale a la biblioteca mágica qué buscas...")
+    st.markdown("---")
+    st.subheader("Cuéntale a la biblioteca mágica lo que buscas, y te dirá cuál será tu próxima lectura.")
     
     col1, col2 = st.columns([3, 1])
     with col1:
-        query = st.text_input("Buscador", placeholder="Ej. quiero un libro de misterio y romance...", label_visibility="collapsed")
+        query = st.text_input("Buscador de libros", placeholder="Ej. quiero un libro de misterio y romance...", label_visibility="collapsed")
     with col2:
         buscar = st.button("Buscar")
 
     if buscar and query:
-        with st.spinner("Consultando los archivos mágicos..."):
-            # Simulación de respuesta IA
-            st.info(f"El oráculo literario sugiere: Basado en '{query}', deberías explorar **'La Sombra del Viento'**.")
+        with st.spinner("Consultando con la biblioteca mágica..."):
+            st.info(f"Basado en tu búsqueda '{query}', te recomendamos leer **'La Sombra del Viento'** de Carlos Ruiz Zafón.")
 else:
-    # Barra de progreso estilizada
     completados = sum(st.session_state.progreso.values())
-    st.write(f"Progreso de búsqueda: {completados}/5 escudos encontrados")
     st.progress(completados / len(RESPUESTAS_CORRECTAS))
+    st.write(f"Has desbloqueado {completados} de {len(RESPUESTAS_CORRECTAS)} géneros.")
