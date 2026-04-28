@@ -32,6 +32,7 @@ st.markdown("""
         text-shadow: 0 0 10px #b388ff, 0 0 20px #b388ff, 0 0 35px #7c4dff;
     }
 
+    /* Estilo de los botones de género (Expanders) */
     div[data-testid="stExpander"] details summary {
         background-color: #3d1c52 !important; 
         border-radius: 12px !important;
@@ -61,6 +62,7 @@ st.markdown("""
         border-bottom-right-radius: 12px !important;
     }
 
+    /* Estilo de los Inputs */
     input {
         background-color: #1a0a2e !important;
         color: #ffffff !important;
@@ -69,6 +71,7 @@ st.markdown("""
         text-align: center;
     }
 
+    /* Botón de acción */
     .stButton>button {
         background: linear-gradient(45deg, #6200ea, #b388ff);
         color: white !important;
@@ -78,6 +81,7 @@ st.markdown("""
         font-weight: 600;
     }
 
+    /* Barra de progreso Lila */
     .stProgress > div > div > div > div {
         background-color: #b388ff;
     }
@@ -89,22 +93,24 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- LÓGICA DE IA ---
+# --- LÓGICA DE IA (CON FIX DE ENCODING) ---
 def obtener_recomendacion(prompt_usuario, api_key):
-    client = OpenAI(api_key=api_key)
     try:
+        client = OpenAI(api_key=api_key)
+        # Forzamos una respuesta simple y clara para evitar errores de codificación del sistema local
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "Eres un bibliotecario mágico. Recomienda un libro de forma breve, misteriosa y encantadora."},
+                {"role": "system", "content": "Eres un bibliotecario magico. Recomienda un libro de forma breve y encantadora en espanol. No uses caracteres especiales complejos."},
                 {"role": "user", "content": prompt_usuario}
             ]
         )
         return response.choices[0].message.content
     except Exception as e:
-        return f"Hubo un problema con la conexión mágica: {e}"
+        # Mensaje de error simplificado sin caracteres que rompan el codec ASCII
+        return "El oraculo tiene problemas con los pergaminos antiguos. Intenta con una descripcion simple."
 
-# --- LÓGICA DE ESTADO ---
+# --- LÓGICA DE ESTADO (Session State) ---
 RESPUESTAS_CORRECTAS = {
     "Romance": "corazon",
     "Fantasía": "dragon",
@@ -119,7 +125,7 @@ if 'progreso' not in st.session_state:
 if 'recomendacion_ia' not in st.session_state:
     st.session_state.recomendacion_ia = None
 
-# --- INTERFAZ ---
+# --- INTERFAZ PRINCIPAL ---
 st.markdown('<h1 class="main-title">¿Cuándo fue la última vez que leíste?</h1>', unsafe_allow_html=True)
 
 completados = sum(st.session_state.progreso.values())
@@ -135,9 +141,9 @@ if not todos_completados:
         label_emoji = "✅" if st.session_state.progreso[genero] else "🔍"
         with st.expander(f"{genero.upper()} {label_emoji}"):
             if st.session_state.progreso[genero]:
-                st.write("✨ Escudo activo.")
+                st.write("✨ Este escudo ya brilla con fuerza.")
             else:
-                st.markdown(f'<p style="color: #f3e5f5;">¿Cuál es el secreto de {genero}?</p>', unsafe_allow_html=True)
+                st.markdown(f'<p style="color: #f3e5f5;">Cual es el secreto de {genero}?</p>', unsafe_allow_html=True)
                 user_input = st.text_input("", key=f"input_{genero}", label_visibility="collapsed").lower().strip()
                 if user_input == respuesta_real:
                     st.session_state.progreso[genero] = True
@@ -145,9 +151,8 @@ if not todos_completados:
     if debe_recargar:
         st.rerun()
 
-# --- SECCIÓN DE RECOMPENSA E IA ---
+# --- SECCIÓN FINAL: RECOMPENSA E IA ---
 else:
-    # Solo mostramos globos la primera vez que se completa todo
     if 'globos_mostrados' not in st.session_state:
         st.balloons()
         st.session_state.globos_mostrados = True
@@ -155,7 +160,7 @@ else:
     st.markdown("""
         <div style="background-color: #2e1a47; border: 3px dashed #b388ff; padding: 30px; border-radius: 20px; text-align: center; margin-bottom: 30px;">
             <h2 style="color: white !important;">¡DESAFÍO COMPLETADO! ⊹ ࣪ ˖</h2>
-            <p style="color: #f3e5f5;">Usa el código en tu próxima compra:</p>
+            <p style="color: #f3e5f5;">Tu recompensa por ser un gran lector es:</p>
             <h1 style="color: #b388ff !important; font-size: 38px; letter-spacing: 4px;">LECTURA15OFF</h1>
         </div>
     """, unsafe_allow_html=True)
@@ -163,20 +168,20 @@ else:
     st.markdown("---")
     st.markdown('<h3 style="color: #f3e5f5; text-align: center;">El Oráculo de la Biblioteca ✨</h3>', unsafe_allow_html=True)
     
-    MI_API_KEY = "TU_LLAVE_API_AQUÍ" # <--- PEGA TU LLAVE AQUÍ
+    # PEGA TU LLAVE AQUÍ
+    MI_API_KEY = "TU_LLAVE_API_AQUÍ" 
     
-    user_query = st.text_input("Describe qué historia buscas...", placeholder="Ej: un viaje épico...")
+    user_query = st.text_input("Describe que historia buscas hoy...", placeholder="Ej: un viaje epico...")
     
     if st.button("Consultar Oráculo"):
         if not user_query:
-            st.warning("El oráculo necesita palabras para funcionar.")
-        elif MI_API_KEY == "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":
-            st.error("Configura la API Key en el código.")
+            st.warning("El oraculo necesita palabras para funcionar.")
+        elif MI_API_KEY == "TU_LLAVE_API_AQUÍ":
+            st.error("Configura la API Key para activar la magia.")
         else:
             with st.spinner("Consultando los pergaminos..."):
-                # Guardamos la respuesta en el estado para que no se borre
                 st.session_state.recomendacion_ia = obtener_recomendacion(user_query, MI_API_KEY)
 
-    # Si hay una recomendación guardada, la mostramos
+    # Mostrar la recomendación si existe en el estado
     if st.session_state.recomendacion_ia:
         st.info(st.session_state.recomendacion_ia)
