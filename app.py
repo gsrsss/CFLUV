@@ -169,14 +169,14 @@ else:
     st.markdown('<h3 style="color: #f3e5f5; text-align: center;">El Oráculo de la Biblioteca ✨</h3>', unsafe_allow_html=True)
     
     # PEGA TU LLAVE AQUÍ
-    MI_API_KEY = "TU_LLAVE_API_AQUÍ" 
+    MI_API_KEY = "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" 
     
     user_query = st.text_input("Describe que historia buscas hoy...", placeholder="Ej: un viaje epico...")
     
     if st.button("Consultar Oráculo"):
         if not user_query:
             st.warning("El oraculo necesita palabras para funcionar.")
-        elif MI_API_KEY == "API KEY HERE":
+        elif MI_API_KEY == "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":
             st.error("Configura la API Key para activar la magia.")
         else:
             with st.spinner("Consultando los pergaminos..."):
