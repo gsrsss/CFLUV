@@ -3,7 +3,7 @@ import streamlit as st
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(
     page_title="¿Cuándo fue la última vez que leíste?",
-    page_icon="",
+    page_icon="📖",
     layout="centered"
 )
 
@@ -79,8 +79,8 @@ if 'progreso' not in st.session_state:
     st.session_state.progreso = {genero: False for genero in RESPUESTAS_CORRECTAS}
 
 # --- INTERFAZ ---
-st.title("📖 ¿Cuándo fue la última vez que leíste?")
-st.write("Introduce las respuestas que encontraste en los libros para desbloquear tu recompensa.")
+st.title("¿Cuándo fue la última vez que leíste?")
+st.write("Introduce las respuestas que encontraste en los libros para desbloquear un secreto...")
 
 # Crear columnas para que se vea bien en móvil (layout vertical natural)
 for genero, respuesta_real in RESPUESTAS_CORRECTAS.items():
@@ -101,17 +101,17 @@ if todos_completados:
     st.balloons()
     st.markdown("""
         <div class="coupon-container">
-            <h3>¡Felicitaciones! 🎉</h3>
+            <h3>¡Felicitaciones! ⊹ ࣪ ˖</h3>
             <p>Lograste encontrar todos los escudos y responder el acertijo.</p>
-            <p>Aquí tienes tu recompensa:</p>
+            <p>Desbloqueaste el secreto:</p>
             <div class="coupon-code">LECTURA15OFF</div>
-            <p><small>Válido para los libros incluidos en la promoción.</small></p>
+            <p><small>Válido para los libros incluidos en la promoción especial.</small></p>
         </div>
     """, unsafe_allow_html=True)
 
     # --- SECCIÓN DE IA RECOMENDADORA ---
     st.markdown("---")
-    st.subheader("🤖 ¡Obtén tu próxima recomendación lectora aquí!")
+    st.subheader("Dile al susurrador de libros lo que buscas, y te dirá cuál será tu próxima lectura.")
     
     col1, col2 = st.columns([3, 1])
     with col1:
