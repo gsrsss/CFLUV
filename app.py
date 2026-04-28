@@ -1,5 +1,5 @@
 import streamlit as st
-from openai import OpenAI # O la librería de la IA que prefieras
+from openai import OpenAI
 
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(
@@ -8,7 +8,7 @@ st.set_page_config(
     layout="centered"
 )
 
-# --- ESTILOS DE PRECISIÓN AMATISTA ---
+# --- ESTILOS DE PRECISIÓN LILA/AMATISTA ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap');
@@ -22,6 +22,7 @@ st.markdown("""
         background-color: #1a0a2e;
     }
 
+    /* Título con brillo Neón Lila */
     .main-title {
         text-align: center;
         color: #fff !important;
@@ -29,10 +30,13 @@ st.markdown("""
         font-weight: 600;
         margin-bottom: 50px !important;
         padding-top: 20px;
-        text-shadow: 0 0 10px #ff4081, 0 0 20px #ff4081;
+        text-shadow: 
+            0 0 10px #b388ff, 
+            0 0 20px #b388ff, 
+            0 0 30px #7c4dff;
     }
 
-    /* Botones de Género Morado Amatista */
+    /* Botones de Género (Morado Amatista) */
     div[data-testid="stExpander"] details summary {
         background-color: #3d1c52 !important; 
         border-radius: 12px !important;
@@ -51,7 +55,7 @@ st.markdown("""
         fill: #ffffff !important;
     }
 
-    /* Fix para evitar el fondo blanco en focus */
+    /* Evitar fondo blanco en focus/click */
     div[data-testid="stExpander"] details summary:hover, 
     div[data-testid="stExpander"] details summary:focus {
         background-color: #4a2366 !important;
@@ -66,7 +70,7 @@ st.markdown("""
         border-bottom-right-radius: 12px !important;
     }
 
-    /* Inputs y botones */
+    /* Inputs de texto (Usuario escribe en blanco) */
     input {
         background-color: #1a0a2e !important;
         color: #ffffff !important;
@@ -75,18 +79,30 @@ st.markdown("""
         text-align: center;
     }
 
+    /* Botones de acción */
     .stButton>button {
-        background: linear-gradient(45deg, #7b1fa2, #ff4081);
+        background: linear-gradient(45deg, #6200ea, #b388ff);
         color: white !important;
         border-radius: 25px;
         width: 100%;
         border: none;
         font-weight: 600;
+        transition: 0.3s;
+    }
+
+    .stButton>button:hover {
+        box-shadow: 0 0 15px #b388ff;
+        transform: scale(1.02);
     }
     
     .centered-text {
         text-align: center;
-        color: #fce4ec !important;
+        color: #f3e5f5 !important;
+    }
+
+    /* Barra de progreso Morado Lila */
+    .stProgress > div > div > div > div {
+        background-color: #b388ff;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -96,17 +112,17 @@ def obtener_recomendacion(prompt_usuario, api_key):
     client = OpenAI(api_key=api_key)
     try:
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo", # O el modelo que prefieras
+            model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "Eres un bibliotecario mágico y misterioso. Recomienda un libro basado en los gustos del usuario de forma breve y encantadora."},
+                {"role": "system", "content": "Eres un bibliotecario mágico y misterioso de una torre antigua. Recomienda un libro de forma encantadora y breve."},
                 {"role": "user", "content": prompt_usuario}
             ]
         )
         return response.choices[0].message.content
     except Exception as e:
-        return f"La biblioteca está cerrada temporalmente... (Error: {e})"
+        return f"El oráculo está nublado... intenta más tarde. (Error: {e})"
 
-# --- LÓGICA DE PROGRESO ---
+# --- LÓGICA DE ESTADO ---
 RESPUESTAS_CORRECTAS = {
     "Romance": "corazon",
     "Fantasía": "dragon",
@@ -118,49 +134,60 @@ RESPUESTAS_CORRECTAS = {
 if 'progreso' not in st.session_state:
     st.session_state.progreso = {genero: False for genero in RESPUESTAS_CORRECTAS}
 
-# --- INTERFAZ ---
+# --- INTERFAZ PRINCIPAL ---
 st.markdown('<h1 class="main-title">¿Cuándo fue la última vez que leíste?</h1>', unsafe_allow_html=True)
-st.markdown('<p class="centered-text">Escribe la respuesta correcta para activar cada escudo literario.</p>', unsafe_allow_html=True)
 
-for genero, respuesta_real in RESPUESTAS_CORRECTAS.items():
-    emoji = "✅" if st.session_state.progreso[genero] else "📖"
-    with st.expander(f"{genero.upper()} {emoji}"):
-        st.markdown(f'<p style="color: #fce4ec;">¿Cuál es el secreto de {genero}?</p>', unsafe_allow_html=True)
-        user_input = st.text_input("", key=f"input_{genero}", label_visibility="collapsed").lower().strip()
-        if user_input == respuesta_real:
-            st.session_state.progreso[genero] = True
-            st.success("Escudo activado.")
+# Calculamos el estado actual
+completados = sum(st.session_state.progreso.values())
+todos_completados = completados == len(RESPUESTAS_CORRECTAS)
 
-# --- SECCIÓN FINAL / RECOMENDADOR ---
-todos_completados = all(st.session_state.progreso.values())
+if not todos_completados:
+    st.markdown('<p class="centered-text">Descubre los secretos ocultos en los libros para avanzar.</p>', unsafe_allow_html=True)
+    
+    # Única barra de progreso (Solo se muestra mientras no terminen)
+    st.progress(completados / len(RESPUESTAS_CORRECTAS))
+    st.markdown(f'<p class="centered-text">Has activado {completados} de 5 escudos literarios.</p>', unsafe_allow_html=True)
+    st.write("")
 
-if todos_completados:
-    st.divider()
+    for genero, respuesta_real in RESPUESTAS_CORRECTAS.items():
+        emoji = "✅" if st.session_state.progreso[genero] else "🔍"
+        with st.expander(f"{genero.upper()} {emoji}"):
+            st.markdown(f'<p style="color: #f3e5f5;">¿Cuál es la palabra secreta de {genero}?</p>', unsafe_allow_html=True)
+            user_input = st.text_input("", key=f"input_{genero}", label_visibility="collapsed").lower().strip()
+            
+            if user_input == respuesta_real:
+                st.session_state.progreso[genero] = True
+                st.rerun() # Refresca para actualizar la barra de progreso única inmediatamente
+            elif user_input != "":
+                st.error("Esa no es la respuesta... el libro guarda su secreto.")
+
+# --- SECCIÓN FINAL: RECOMPENSA Y IA ---
+else:
     st.balloons()
     st.markdown("""
-        <div style="background-color: #2e1a47; border: 3px dashed #ff4081; padding: 30px; border-radius: 20px; text-align: center; margin-bottom: 30px;">
-            <h2 style="color: white !important;">¡LOGRADO! ⊹ ࣪ ˖</h2>
-            <p style="color: #fce4ec;">Código de descuento:</p>
-            <h1 style="color: #ff80ab !important; font-size: 35px;">LECTURA15OFF</h1>
+        <div style="background-color: #2e1a47; border: 3px dashed #b388ff; padding: 30px; border-radius: 20px; text-align: center; margin-bottom: 30px;">
+            <h2 style="color: white !important;">¡DESAFÍO COMPLETADO! ⊹ ࣪ ˖</h2>
+            <p style="color: #f3e5f5;">Has demostrado ser un gran lector. Tu recompensa es:</p>
+            <h1 style="color: #b388ff !important; font-size: 38px; letter-spacing: 4px;">LECTURA15OFF</h1>
         </div>
     """, unsafe_allow_html=True)
 
-    st.markdown('<h3 style="color: #fce4ec; text-align: center;">Consulta el Oráculo de la Biblioteca ✨</h3>', unsafe_allow_html=True)
+    st.markdown("---")
+    st.markdown('<h3 style="color: #f3e5f5; text-align: center;">El Oráculo de la Biblioteca ✨</h3>', unsafe_allow_html=True)
+    st.markdown('<p class="centered-text">Escribe lo que buscas y deja que la magia elija por ti.</p>', unsafe_allow_html=True)
     
-    # IMPORTANTE: Coloca aquí tu llave o usa st.secrets para mayor seguridad
-    mi_api_key = "TU_LLAVE_API_AQUÍ" 
+    # Configuración de API Key
+    # Tip: En Streamlit Cloud usa Settings > Secrets y pon: OPENAI_API_KEY = "tu_llave"
+    api_key_final = st.secrets.get("OPENAI_API_KEY", "TU_LLAVE_API_AQUÍ")
     
-    user_query = st.text_input("¿Qué historia buscas hoy?", placeholder="Ej: un romance triste en el espacio...")
+    user_query = st.text_input("Describe tu estado de ánimo o género favorito...", placeholder="Ej: un viaje épico con magia oscura...")
+    
     if st.button("Consultar Oráculo"):
-        if user_query and mi_api_key != "TU_LLAVE_API_AQUÍ":
-            with st.spinner("Buscando en los estantes prohibidos..."):
-                respuesta = obtener_recomendacion(user_query, mi_api_key)
-                st.info(respuesta)
+        if not user_query:
+            st.warning("El oráculo no puede leer el silencio. Escribe algo.")
+        elif api_key_final == "TU_LLAVE_API_AQUÍ":
+            st.error("Falta la conexión mágica (API Key no configurada).")
         else:
-            st.warning("Escribe algo para que el oráculo pueda responder (o configura tu API Key).")
-else:
-    completados = sum(st.session_state.progreso.values())
-    st.progress(completados / 5)
-    st.markdown(f'<p class="centered-text">Has encontrado {completados} de 5 secretos.</p>', unsafe_allow_html=True)
-    st.progress(completados / 5)
-    st.markdown(f'<p class="centered-text">Has encontrado {completados} de 5 secretos.</p>', unsafe_allow_html=True)
+            with st.spinner("Consultando los pergaminos antiguos..."):
+                recomendacion = obtener_recomendacion(user_query, api_key_final)
+                st.info(recomendacion)
