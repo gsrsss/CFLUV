@@ -176,7 +176,7 @@ else:
     if st.button("Consultar Oráculo"):
         if not user_query:
             st.warning("El oraculo necesita palabras para funcionar.")
-        elif MI_API_KEY == "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":
+        elif MI_API_KEY == "API KEY HERE":
             st.error("Configura la API Key para activar la magia.")
         else:
             with st.spinner("Consultando los pergaminos..."):
