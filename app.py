@@ -7,10 +7,10 @@ st.set_page_config(
     layout="centered"
 )
 
-# --- ESTILOS PERSONALIZADOS ---
+# --- ESTILOS DE FUERZA BRUTA ---
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap');
 
     html, body, [class*="css"] {
         font-family: 'Quicksand', sans-serif;
@@ -21,85 +21,69 @@ st.markdown("""
         background-color: #1a0a2e;
     }
 
-    /* Título con efecto Neón (Sin tocar, como pediste) */
+    /* Título Neón (Intacto) */
     .main-title {
         text-align: center;
         color: #fff !important;
         font-size: 3.2rem !important;
         font-weight: 600;
         margin-bottom: 50px !important;
-        padding-top: 20px;
-        text-shadow: 
-            0 0 7px #ff4081,
-            0 0 10px #ff4081,
-            0 0 21px #ff4081,
-            0 0 42px #7b1fa2;
+        text-shadow: 0 0 10px #ff4081, 0 0 20px #ff4081;
     }
 
+    /* --- NUEVO ESTILO DE BOTONES DE GÉNERO --- */
+    /* Forzamos el contenedor del expander */
+    .st-emotion-cache-p5msec {
+        background-color: #f06292 !important; /* Rosa sólido */
+        border-radius: 15px !important;
+        border: 2px solid #ff80ab !important;
+        margin-bottom: 15px !important;
+    }
+
+    /* EL TRUCO: Forzar CUALQUIER texto dentro del encabezado a ser blanco */
+    div[data-testid="stExpander"] details summary p {
+        color: #FFFFFF !important;
+        font-size: 1.3rem !important;
+        font-weight: 700 !important;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* Color de la flecha */
+    div[data-testid="stExpander"] details summary svg {
+        fill: #FFFFFF !important;
+    }
+
+    /* Cuando el expander está abierto */
+    div[data-testid="stExpander"] {
+        background-color: rgba(255, 255, 255, 0.05);
+        border-radius: 15px;
+    }
+
+    /* Inputs y botones inferiores */
+    input {
+        background-color: #2e1a47 !important;
+        color: white !important;
+        border: 2px solid #f06292 !important;
+        text-align: center;
+    }
+
+    .stButton>button {
+        background: linear-gradient(45deg, #7b1fa2, #f06292);
+        color: white !important;
+        border: none;
+        border-radius: 25px;
+        width: 100%;
+    }
+    
     .centered-text {
         text-align: center;
         color: #fce4ec !important;
-        margin-bottom: 30px !important;
-    }
-
-    /* --- SOLUCIÓN LEGIBILIDAD BOTONES GÉNERO --- */
-    
-    /* Forzar el color del texto de la etiqueta del expander */
-    .streamlit-expanderHeader p {
-        color: #ffffff !important; /* Blanco puro para que se lea siempre */
-        font-size: 1.2rem !important;
-        font-weight: 600 !important;
-    }
-
-    .streamlit-expanderHeader {
-        background-color: #d81b60 !important; /* Un rosa más fuerte para contraste */
-        border: 2px solid #ff80ab !important;
-        border-radius: 12px !important;
-        padding: 15px !important;
-        opacity: 1 !important;
-        margin-bottom: 10px !important;
-    }
-
-    /* Flecha del menú en blanco */
-    .streamlit-expanderHeader svg {
-        fill: #ffffff !important;
-    }
-
-    /* Estilo del contenido interior */
-    .streamlit-expanderContent {
-        background-color: #2e1a47 !important;
-        border: 1px solid #d81b60 !important;
-        color: white !important;
-    }
-
-    /* Estilo de los inputs */
-    input {
-        background-color: #1a0a2e !important;
-        color: white !important;
-        border: 1px solid #ff4081 !important;
-        border-radius: 10px !important;
-        text-align: center;
-    }
-
-    /* Botón de Buscar */
-    .stButton>button {
-        background: linear-gradient(45deg, #7b1fa2, #ff4081);
-        color: white !important;
-        border-radius: 25px;
-        border: none;
-        padding: 10px 30px;
-        margin: 0 auto;
-        display: block;
-    }
-
-    /* Barra de progreso */
-    .stProgress > div > div > div > div {
-        background-color: #ff4081;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- LÓGICA DE ESTADO ---
+# --- LÓGICA ---
 RESPUESTAS_CORRECTAS = {
     "Romance": "corazon",
     "Fantasía": "dragon",
@@ -113,41 +97,31 @@ if 'progreso' not in st.session_state:
 
 # --- INTERFAZ ---
 st.markdown('<h1 class="main-title">¿Cuándo fue la última vez que leíste?</h1>', unsafe_allow_html=True)
-st.markdown('<p class="centered-text">Introduce las respuestas que encontraste en los libros para desbloquear un secreto...</p>', unsafe_allow_html=True)
+st.markdown('<p class="centered-text">Escribe la respuesta correcta para activar cada escudo literario.</p>', unsafe_allow_html=True)
 
-# Géneros
 for genero, respuesta_real in RESPUESTAS_CORRECTAS.items():
-    emoji = "✅" if st.session_state.progreso[genero] else "🔍"
-    # Usamos markdown dentro del label para ayudar a la legibilidad si es necesario
+    emoji = "✅" if st.session_state.progreso[genero] else "📖"
+    # El label ahora es un string simple, el CSS se encarga de pintarlo de blanco
     with st.expander(f"{genero.upper()} {emoji}"):
-        user_input = st.text_input(f"Secreto de {genero}:", key=f"input_{genero}").lower().strip()
-        
+        user_input = st.text_input(f"¿Cuál es el secreto de {genero}?", key=f"input_{genero}").lower().strip()
         if user_input == respuesta_real:
             st.session_state.progreso[genero] = True
-            st.success(f"¡Correcto!")
+            st.success("Escudo activado.")
         elif user_input != "":
-            st.error("Sigue buscando...")
+            st.error("Sigue intentando.")
 
-# --- RECOMPENSA ---
-todos_completados = all(st.session_state.progreso.values())
-
-if todos_completados:
+# --- SECCIÓN FINAL ---
+if all(st.session_state.progreso.values()):
     st.divider()
     st.balloons()
     st.markdown("""
-        <div style="background-color: #2e1a47; border: 2px dashed #ff4081; padding: 25px; border-radius: 15px; text-align: center;">
-            <h3 style="color: white !important;">¡Felicitaciones! ⊹ ࣪ ˖</h3>
-            <p style="color: white;">Desbloqueaste el secreto:</p>
-            <div style="font-size: 24px; font-weight: bold; color: #ff80ab;">LECTURA15OFF</div>
+        <div style="background-color: #2e1a47; border: 3px dashed #f06292; padding: 30px; border-radius: 20px; text-align: center;">
+            <h2 style="color: white !important;">¡LOGRADO! ⊹ ࣪ ˖</h2>
+            <p style="color: #fce4ec;">Usa el código en tu próxima compra:</p>
+            <h1 style="color: #f06292 !important; font-size: 35px;">LECTURA15OFF</h1>
         </div>
     """, unsafe_allow_html=True)
-    
-    st.markdown("---")
-    st.markdown('<h3 style="color: white; text-align: center;">¿Cuál será tu próxima lectura? ✨</h3>', unsafe_allow_html=True)
-    query = st.text_input("Buscador", placeholder="Ej. misterio y romance...", label_visibility="collapsed")
-    if st.button("Buscar"):
-        st.info(f"El oráculo sugiere algo basado en tu búsqueda.")
 else:
     completados = sum(st.session_state.progreso.values())
     st.progress(completados / 5)
-    st.markdown(f'<p class="centered-text">Has desbloqueado {completados} de 5 géneros.</p>', unsafe_allow_html=True)
+    st.markdown(f'<p class="centered-text">Has encontrado {completados} de 5 secretos.</p>', unsafe_allow_html=True)
