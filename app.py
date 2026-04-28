@@ -111,7 +111,7 @@ if todos_completados:
 
     # --- SECCIÓN DE IA RECOMENDADORA ---
     st.markdown("---")
-    st.subheader("Dile al susurrador de libros lo que buscas, y te dirá cuál será tu próxima lectura.")
+    st.subheader("Cuéntale a la biblioteca mágica lo que buscas, y te dirá cuál será tu próxima lectura.")
     
     col1, col2 = st.columns([3, 1])
     with col1:
