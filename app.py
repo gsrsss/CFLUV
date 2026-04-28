@@ -25,10 +25,11 @@ st.markdown("""
     .main-title {
         text-align: center;
         color: #fce4ec !important;
-        font-size: 3rem !important; /* Más grande */
+        font-size: 3rem !important;
         font-weight: 600;
-        margin-bottom: 40px !important; /* Espacio extra abajo */
+        margin-bottom: 40px !important;
         padding-top: 20px;
+        text-shadow: 0px 0px 15px rgba(255, 64, 129, 0.5);
     }
 
     .centered-text {
@@ -37,17 +38,26 @@ st.markdown("""
         margin-bottom: 25px !important;
     }
 
-    h3 {
-        text-align: center;
-        color: #fce4ec !important;
+    /* --- ESTILO DE LOS BOTONES DE GÉNERO (EXPANDERS) --- */
+    .streamlit-expanderHeader {
+        background-color: #4a148c !important; /* Morado más claro y vibrante que el fondo */
+        border: 2px solid #ba68c8 !important; /* Borde brillante para que se note el límite */
+        border-radius: 15px !important;
+        color: #ffffff !important; /* Letra blanca para máximo contraste */
+        padding: 15px !important;
+        font-weight: 600 !important;
+        margin-bottom: 10px !important;
+        transition: all 0.3s ease;
     }
 
-    /* Estilo para los Expanders */
-    .streamlit-expanderHeader {
-        background-color: #3d1c52 !important;
-        border-radius: 10px !important;
-        color: #ff80ab !important;
-        text-align: center;
+    .streamlit-expanderHeader:hover {
+        border-color: #ff4081 !important; /* El borde cambia a rosa neón al pasar el mouse */
+        background-color: #6a1b9a !important;
+    }
+
+    /* Icono de la flecha del expander */
+    .streamlit-expanderHeader svg {
+        fill: #ffffff !important;
     }
 
     /* Contenedor del Cupón */
@@ -68,36 +78,31 @@ st.markdown("""
         letter-spacing: 2px;
     }
 
-    /* Botones */
+    /* Botones de acción (Buscar) */
     .stButton>button {
         background: linear-gradient(45deg, #7b1fa2, #ff4081);
-        color: white;
+        color: white !important;
         border: none;
         border-radius: 20px;
         padding: 10px 25px;
         transition: all 0.3s ease;
         font-weight: 600;
         display: block;
-        margin: 0 auto; /* Centrar botón de buscar */
+        margin: 0 auto;
     }
 
-    .stButton>button:hover {
-        transform: scale(1.05);
-        box-shadow: 0px 0px 12px rgba(255, 64, 129, 0.6);
-    }
-    
     /* Inputs */
     input {
         background-color: #2e1a47 !important;
         color: white !important;
-        border: 1px solid #7b1fa2 !important;
+        border: 1px solid #ba68c8 !important;
         border-radius: 10px !important;
-        text-align: center; /* Texto centrado en el input */
+        text-align: center;
     }
 
-    /* Ajuste de progreso centrado */
-    .stProgress {
-        margin-top: 20px;
+    /* Mensajes de éxito/error legibles */
+    .stAlert p {
+        color: #333 !important; /* Texto oscuro sobre fondo claro de alerta para que se lea bien */
     }
     </style>
     """, unsafe_allow_html=True)
@@ -115,22 +120,21 @@ if 'progreso' not in st.session_state:
     st.session_state.progreso = {genero: False for genero in RESPUESTAS_CORRECTAS}
 
 # --- INTERFAZ ---
-# Título principal centrado y grande
 st.markdown('<h1 class="main-title">¿Cuándo fue la última vez que leíste?</h1>', unsafe_allow_html=True)
 st.markdown('<p class="centered-text">Introduce las respuestas que encontraste en los libros para desbloquear un secreto...</p>', unsafe_allow_html=True)
 
-# Espacio adicional antes de los géneros
-st.write("")
+st.write("") # Espacio separador
 
 for genero, respuesta_real in RESPUESTAS_CORRECTAS.items():
-    with st.expander(f"Género: {genero} {'✅' if st.session_state.progreso[genero] else '🔍'}"):
-        user_input = st.text_input(f"Respuesta para {genero}:", key=f"input_{genero}").lower().strip()
+    estado = "✅ Completado" if st.session_state.progreso[genero] else "🔍 Buscar Acertijo"
+    with st.expander(f"{genero} — {estado}"):
+        user_input = st.text_input(f"Escribe la respuesta aquí:", key=f"input_{genero}").lower().strip()
         
         if user_input == respuesta_real:
             st.session_state.progreso[genero] = True
             st.success(f"¡Correcto! Has encontrado el escudo de {genero}.")
         elif user_input != "":
-            st.error("Esa no es la respuesta, ¡sigue buscando en el libro!")
+            st.error("Esa no es la respuesta, ¡sigue buscando!")
 
 # --- SECCIÓN DE RECOMPENSA ---
 todos_completados = all(st.session_state.progreso.values())
@@ -140,7 +144,7 @@ if todos_completados:
     st.balloons()
     st.markdown("""
         <div class="coupon-container">
-            <h3>¡Felicitaciones! ⊹ ࣪ ˖</h3>
+            <h3 style="color: #fce4ec !important;">¡Felicitaciones! ⊹ ࣪ ˖</h3>
             <p>Lograste encontrar todos los escudos y responder el acertijo.</p>
             <p>Desbloqueaste el secreto:</p>
             <div class="coupon-code">LECTURA15OFF</div>
@@ -149,16 +153,15 @@ if todos_completados:
     """, unsafe_allow_html=True)
 
     st.markdown("---")
-    st.markdown('<h3 style="margin-bottom: 20px;">Cuéntale a la biblioteca mágica lo que buscas, y te dirá cuál será tu próxima lectura.</h3>', unsafe_allow_html=True)
+    st.markdown('<h3 style="color: #fce4ec !important; text-align: center; margin-bottom: 20px;">Obtén tu próxima recomendación lectora aquí!</h3>', unsafe_allow_html=True)
     
     query = st.text_input("Buscador de libros", placeholder="Ej. quiero un libro de misterio y romance...", label_visibility="collapsed")
     buscar = st.button("Buscar")
 
     if buscar and query:
         with st.spinner("Consultando con la biblioteca mágica..."):
-            st.info(f"Basado en tu búsqueda '{query}', te recomendamos leer **'La Sombra del Viento'** de Carlos Ruiz Zafón.")
+            st.info(f"Basado en tu búsqueda '{query}', te recomendamos leer **'La Sombra del Viento'**.")
 else:
-    # Barra de progreso visual centraday texto
     completados = sum(st.session_state.progreso.values())
     st.progress(completados / len(RESPUESTAS_CORRECTAS))
     st.markdown(f'<p class="centered-text">Has desbloqueado {completados} de {len(RESPUESTAS_CORRECTAS)} géneros.</p>', unsafe_allow_html=True)
