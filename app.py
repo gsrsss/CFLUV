@@ -168,20 +168,19 @@ else:
     st.markdown("---")
     st.markdown('<h3 style="color: #f3e5f5; text-align: center;">El Oráculo de la Biblioteca ✨</h3>', unsafe_allow_html=True)
     
-    # PEGA TU LLAVE AQUÍ
-    MI_API_KEY = "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" 
+MI_API_KEY = "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"
     
-    user_query = st.text_input("Describe que historia buscas hoy...", placeholder="Ej: un viaje epico...")
+    user_query = st.text_input("¿Qué historia buscas hoy?", placeholder="Ej: un viaje epico...")
     
     if st.button("Consultar Oráculo"):
         if not user_query:
-            st.warning("El oraculo necesita palabras para funcionar.")
-        elif MI_API_KEY == "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":
-            st.error("Configura la API Key para activar la magia.")
+            st.warning("Escribe algo primero.")
+        # Simplificamos la validación para que NO de error con tu llave real
+        elif len(MI_API_KEY) < 10: 
+            st.error("La llave API no parece valida.")
         else:
-            with st.spinner("Consultando los pergaminos..."):
+            with st.spinner("Consultando pergaminos..."):
                 st.session_state.recomendacion_ia = obtener_recomendacion(user_query, MI_API_KEY)
 
-    # Mostrar la recomendación si existe en el estado
     if st.session_state.recomendacion_ia:
         st.info(st.session_state.recomendacion_ia)
