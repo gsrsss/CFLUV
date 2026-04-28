@@ -7,7 +7,7 @@ st.set_page_config(
     layout="centered"
 )
 
-# --- ESTILOS DE PRECISIÓN ---
+# --- ESTILOS DE PRECISIÓN AMATISTA ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap');
@@ -21,40 +21,34 @@ st.markdown("""
         background-color: #1a0a2e;
     }
 
-    /* Título Neón */
+    /* Título Neón (Intacto) */
     .main-title {
         text-align: center;
         color: #fff !important;
         font-size: 3.2rem !important;
         font-weight: 600;
         margin-bottom: 50px !important;
+        padding-top: 20px;
         text-shadow: 0 0 10px #ff4081, 0 0 20px #ff4081;
     }
 
-    /* --- BOTONES DE GÉNERO (FIX BLANCO) --- */
+    /* --- BOTONES DE GÉNERO (MORADO CLARO) --- */
     
-    /* Forzamos el rosa y evitamos que se ponga blanco al hacer clic o focus */
+    /* El contenedor principal del botón desplegable */
     div[data-testid="stExpander"] details summary {
-        background-color: #f06292 !important; 
+        background-color: #3d1c52 !important; /* Morado más claro que el fondo */
         border-radius: 12px !important;
-        border: 2px solid #ff80ab !important;
+        border: 1px solid #7b1fa2 !important;
         padding: 15px !important;
         color: #ffffff !important;
+        transition: all 0.3s ease;
     }
 
-    /* Evitar el fondo blanco de Streamlit cuando el elemento está "activo" */
-    div[data-testid="stExpander"] details summary:hover, 
-    div[data-testid="stExpander"] details summary:focus,
-    div[data-testid="stExpander"] details summary:active {
-        background-color: #f06292 !important;
-        color: #ffffff !important;
-    }
-
-    /* FORZAR TEXTO BLANCO EN EL TÍTULO DEL GÉNERO */
+    /* Forzamos que el texto del título sea BLANCO */
     div[data-testid="stExpander"] details summary p {
         color: #ffffff !important;
-        font-size: 1.3rem !important;
-        font-weight: 700 !important;
+        font-size: 1.25rem !important;
+        font-weight: 600 !important;
     }
 
     /* Flecha en blanco */
@@ -62,35 +56,49 @@ st.markdown("""
         fill: #ffffff !important;
     }
 
-    /* --- TEXTO ADENTRO DEL BOTÓN (INPUT) --- */
-    
-    /* El label de la pregunta interna */
-    div[data-testid="stExpander"] label p {
-        color: #fce4ec !important;
-        font-size: 1rem !important;
+    /* FIX: Evitar que el fondo se vuelva blanco al hacer focus o clic */
+    div[data-testid="stExpander"] details summary:hover, 
+    div[data-testid="stExpander"] details summary:focus,
+    div[data-testid="stExpander"] details summary:active {
+        background-color: #4a2366 !important; /* Un morado ligeramente más vibrante al tocarlo */
+        color: #ffffff !important;
+        outline: none !important;
+        box-shadow: none !important;
     }
 
-    /* El texto que escribe el usuario */
+    /* Estilo del contenido interior */
+    .streamlit-expanderContent {
+        background-color: #26123d !important;
+        border: 1px solid #3d1c52 !important;
+        border-bottom-left-radius: 12px !important;
+        border-bottom-right-radius: 12px !important;
+    }
+
+    /* --- TEXTO DENTRO DE LOS INPUTS --- */
     input {
-        background-color: #2e1a47 !important;
-        color: #ffffff !important; /* Texto blanco al escribir */
-        border: 2px solid #f06292 !important;
+        background-color: #1a0a2e !important;
+        color: #ffffff !important; /* Texto del usuario en blanco */
+        border: 1px solid #7b1fa2 !important;
         border-radius: 10px !important;
         text-align: center;
-        font-size: 1.1rem !important;
     }
 
     /* Botón de Buscar e Interfaz */
     .stButton>button {
-        background: linear-gradient(45deg, #7b1fa2, #f06292);
+        background: linear-gradient(45deg, #7b1fa2, #ff4081);
         color: white !important;
         border-radius: 25px;
         width: 100%;
+        border: none;
     }
     
     .centered-text {
         text-align: center;
         color: #fce4ec !important;
+    }
+
+    .stProgress > div > div > div > div {
+        background-color: #ff4081;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -112,9 +120,12 @@ st.markdown('<h1 class="main-title">¿Cuándo fue la última vez que leíste?</h
 st.markdown('<p class="centered-text">Escribe la respuesta correcta para activar cada escudo literario.</p>', unsafe_allow_html=True)
 
 for genero, respuesta_real in RESPUESTAS_CORRECTAS.items():
-    emoji = "✅" if st.session_state.progreso[genero] else "🔍"
+    emoji = "✅" if st.session_state.progreso[genero] else "📖"
     with st.expander(f"{genero.upper()} {emoji}"):
-        user_input = st.text_input(f"¿Cuál es el secreto de {genero}?", key=f"input_{genero}").lower().strip()
+        # Texto blanco para el label
+        st.markdown(f'<p style="color: #fce4ec;">¿Cuál es el secreto de {genero}?</p>', unsafe_allow_html=True)
+        user_input = st.text_input("", key=f"input_{genero}", label_visibility="collapsed").lower().strip()
+        
         if user_input == respuesta_real:
             st.session_state.progreso[genero] = True
             st.success("Escudo activado.")
@@ -126,10 +137,10 @@ if all(st.session_state.progreso.values()):
     st.divider()
     st.balloons()
     st.markdown("""
-        <div style="background-color: #2e1a47; border: 3px dashed #f06292; padding: 30px; border-radius: 20px; text-align: center;">
+        <div style="background-color: #2e1a47; border: 3px dashed #ff4081; padding: 30px; border-radius: 20px; text-align: center;">
             <h2 style="color: white !important;">¡LOGRADO! ⊹ ࣪ ˖</h2>
             <p style="color: #fce4ec;">Usa el código en tu próxima compra:</p>
-            <h1 style="color: #f06292 !important; font-size: 35px;">LECTURA15OFF</h1>
+            <h1 style="color: #ff80ab !important; font-size: 35px;">LECTURA15OFF</h1>
         </div>
     """, unsafe_allow_html=True)
 else:
