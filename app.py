@@ -3,7 +3,7 @@ import streamlit as st
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(
     page_title="¿Cuándo fue la última vez que leíste?",
-    page_icon="📖",
+    page_icon="",
     layout="centered"
 )
 
