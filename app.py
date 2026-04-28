@@ -20,27 +20,23 @@ st.markdown("""
 
     .stApp { background-color: #1a0a2e; }
 
-    /* Título reducido para móviles */
+    /* Título optimizado para móvil */
     .main-title {
         text-align: center;
         color: #fff !important;
-        font-size: 2.2rem !important; /* Reducido de 3.2rem */
+        font-size: 2.1rem !important;
         font-weight: 600;
-        margin-bottom: 30px !important;
+        margin-bottom: 25px !important;
         text-shadow: 0 0 10px #b388ff, 0 0 20px #7c4dff;
     }
 
-    /* Ajuste de Expanders */
+    /* Expanders (Acordeones) */
     div[data-testid="stExpander"] details summary {
         background-color: #3d1c52 !important; 
         border-radius: 12px !important;
         border: 1px solid #7b1fa2 !important;
         color: #ffffff !important;
-    }
-
-    div[data-testid="stExpander"] details summary p {
-        font-size: 1.1rem !important;
-        font-weight: 600 !important;
+        padding: 10px !important;
     }
 
     .streamlit-expanderContent {
@@ -63,36 +59,43 @@ st.markdown("""
         border-radius: 20px;
         border: none;
         font-weight: 600;
+        width: 100%;
     }
 
     .centered-text {
         text-align: center;
         color: #f3e5f5 !important;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
     }
 
     .stProgress > div > div > div > div { background-color: #b388ff; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- LÓGICA DE IA (OPENROUTER) ---
+# --- LÓGICA DE IA (AJUSTADA PARA OPENROUTER) ---
 def obtener_recomendacion(prompt_usuario, api_key):
     try:
-        # Configuración específica para OpenRouter con tu llave
+        # Configuración para evitar el Error 401 en OpenRouter
         client = OpenAI(
             base_url="https://openrouter.ai/api/v1",
-            api_key=api_key
+            api_key=api_key,
+            default_headers={
+                "HTTP-Referer": "http://localhost:8501", 
+                "X-Title": "App Biblioteca Magica"
+            }
         )
+        
+        # Usamos un modelo estable de OpenRouter
         response = client.chat.completions.create(
-            model="openai/gpt-3.5-turbo", # O usa "google/gemini-2.0-flash-001" si prefieres
+            model="openai/gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "Eres un bibliotecario magico. Recomienda un libro en espanol de forma breve."},
+                {"role": "system", "content": "Eres un bibliotecario magico. Recomienda un libro breve en espanol sin usar caracteres especiales complejos."},
                 {"role": "user", "content": prompt_usuario}
             ]
         )
         return response.choices[0].message.content
     except Exception as e:
-        return f"Error en la conexion: {str(e)}"
+        return f"El oráculo está nublado: {str(e)}"
 
 # --- LÓGICA DE ESTADO ---
 RESPUESTAS_CORRECTAS = {
@@ -105,8 +108,8 @@ RESPUESTAS_CORRECTAS = {
 
 if 'progreso' not in st.session_state:
     st.session_state.progreso = {g: False for g in RESPUESTAS_CORRECTAS}
-if 'recomendacion_ia' not in st.session_state:
-    st.session_state.recomendacion_ia = None
+if 'ia_resp' not in st.session_state:
+    st.session_state.ia_resp = None
 
 # --- INTERFAZ ---
 st.markdown('<h1 class="main-title">¿Cuándo fue la última vez que leíste?</h1>', unsafe_allow_html=True)
@@ -115,22 +118,22 @@ completados = sum(st.session_state.progreso.values())
 total = len(RESPUESTAS_CORRECTAS)
 
 if completados < total:
-    st.markdown('<p class="centered-text">Activa los escudos literarios para continuar.</p>', unsafe_allow_html=True)
+    st.markdown('<p class="centered-text">Descifra los secretos para avanzar.</p>', unsafe_allow_html=True)
     st.progress(completados / total)
     
-    debe_recargar = False
-    for genero, respuesta_real in RESPUESTAS_CORRECTAS.items():
-        label = "✅" if st.session_state.progreso[genero] else "🔍"
-        with st.expander(f"{genero.upper()} {label}"):
+    rerun_needed = False
+    for genero, secreto in RESPUESTAS_CORRECTAS.items():
+        status = "✅" if st.session_state.progreso[genero] else "🔍"
+        with st.expander(f"{genero.upper()} {status}"):
             if st.session_state.progreso[genero]:
-                st.write("✨ Escudo activado.")
+                st.write("✨ Escudo activo.")
             else:
-                user_input = st.text_input(f"Secreto {genero}", key=f"in_{genero}", label_visibility="collapsed").lower().strip()
-                if user_input == respuesta_real:
+                ans = st.text_input(f"¿Clave de {genero}?", key=f"in_{genero}", label_visibility="collapsed").lower().strip()
+                if ans == secreto:
                     st.session_state.progreso[genero] = True
-                    debe_recargar = True
+                    rerun_needed = True
     
-    if debe_recargar:
+    if rerun_needed:
         st.rerun()
 
 else:
@@ -138,27 +141,27 @@ else:
         st.balloons()
         st.session_state.globos = True
 
+    # Cuadro de recompensa compacto
     st.markdown("""
-        <div style="background-color: #2e1a47; border: 2px dashed #b388ff; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px;">
-            <h3 style="color: white !important; margin:0;">¡LOGRADO!</h3>
-            <p style="color: #f3e5f5; font-size: 0.9rem;">Usa el código:</p>
-            <h2 style="color: #b388ff !important; margin:0;">LECTURA15OFF</h2>
+        <div style="background-color: #2e1a47; border: 2px dashed #b388ff; padding: 15px; border-radius: 15px; text-align: center; margin-bottom: 20px;">
+            <p style="color: #f3e5f5; font-size: 0.8rem; margin:0;">¡DESAFÍO COMPLETADO!</p>
+            <h2 style="color: #b388ff !important; margin:5px 0;">LECTURA15OFF</h2>
         </div>
     """, unsafe_allow_html=True)
 
-    st.markdown('<p class="centered-text"><b>El Oráculo de la Biblioteca ✨</b></p>', unsafe_allow_html=True)
+    st.markdown('<p class="centered-text"><b>Consulta al Oráculo ✨</b></p>', unsafe_allow_html=True)
     
-    # LLAVE API
-    MI_API_KEY = "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"
+    # API KEY (OpenRouter)
+    MI_KEY = "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"
     
-    u_query = st.text_input("¿Qué buscas hoy?", placeholder="Ej: un romance triste...", label_visibility="collapsed")
+    q = st.text_input("¿Qué buscas?", placeholder="Ej: un viaje épico...", label_visibility="collapsed")
     
-    if st.button("Consultar Oráculo"):
-        if u_query:
-            with st.spinner("Leyendo pergaminos..."):
-                st.session_state.recomendacion_ia = obtener_recomendacion(u_query, MI_API_KEY)
+    if st.button("Consultar"):
+        if q:
+            with st.spinner("Consultando..."):
+                st.session_state.ia_resp = obtener_recomendacion(q, MI_KEY)
         else:
             st.warning("Escribe algo primero.")
 
-    if st.session_state.recomendacion_ia:
-        st.info(st.session_state.recomendacion_ia)
+    if st.session_state.ia_resp:
+        st.info(st.session_state.ia_resp)
